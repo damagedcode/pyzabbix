@@ -80,12 +80,21 @@ class ZabbixAPI(object):
         return self.apiinfo.version()
 
     def do_request(self, method, params=None):
-        request_json = {
-            'jsonrpc': '2.0',
-            'method': method,
-            'params': params or {},
-            'id': self.id,
-        }
+
+        if method == 'user.login':
+            request_json = {
+                'jsonrpc': '2.0',
+                'method': method,
+                'params': params or {},
+                'id': self.id
+            }
+        else:
+            request_json = {
+                'jsonrpc': '2.0',
+                'method': method,
+                'params': params or {},
+                'id': self.id,
+            }
 
         # We don't have to pass the auth token if asking for the apiinfo.version
         if self.auth and method != 'apiinfo.version':
