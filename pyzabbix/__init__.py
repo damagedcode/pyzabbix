@@ -7,6 +7,7 @@ class _NullHandler(logging.Handler):
     def emit(self, record):
         pass
 
+
 logger = logging.getLogger(__name__)
 logger.addHandler(_NullHandler())
 
@@ -81,25 +82,21 @@ class ZabbixAPI(object):
 
     def do_request(self, method, params=None):
 
-        if method == 'user.login':
-            request_json = {
-                'jsonrpc': '2.0',
-                'method': method,
-                'params': params or {},
-                'id': self.id
-            }
-        else:
-            request_json = {
-                'jsonrpc': '2.0',
-                'method': method,
-                'params': params or {},
-                'id': self.id,
-            }
+        request_json = {
+            'jsonrpc': '2.0',
+            'method': method,
+            'params': params or {},
+            'auth': self.auth,
+            'id': self.id,
+        }
 
         # We don't have to pass the auth token if asking for the apiinfo.version
         if self.auth and method != 'apiinfo.version':
             request_json['auth'] = self.auth
 
+        # user.login method do not accept auth
+        if method == 'user.login':
+            del request_json['auth']
 
         logger.debug("Sending: %s", json.dumps(request_json,
                                                indent=4,
